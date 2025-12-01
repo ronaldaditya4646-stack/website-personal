@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Log History</title>
+    <style>
+        /* --- STYLE DASAR (Sama kayak Index) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0a0a12; color: #fff; padding: 20px; min-height: 100vh; }
+
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #7d2ae8; padding-bottom: 20px; margin-bottom: 30px;
+        }
+        h1 { color: #00f2ff; font-weight: bold; letter-spacing: 2px; }
+        
+        .btn-back {
+            text-decoration: none; color: #7d2ae8; border: 1px solid #7d2ae8;
+            padding: 8px 25px; border-radius: 20px; transition: 0.3s; font-weight: bold;
+        }
+        .btn-back:hover { background: #7d2ae8; color: white; box-shadow: 0 0 15px #7d2ae8; }
+
+        /* --- STYLE TABEL KEREN --- */
+        .table-container {
+            background: #161625; border-radius: 15px; padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        
+        thead { background: rgba(125, 42, 232, 0.2); }
+        th { padding: 15px; text-align: left; color: #00f2ff; text-transform: uppercase; font-size: 0.9rem; }
+        
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; }
+        
+        /* Hover Effect di Baris */
+        tr:hover td { background: rgba(255,255,255,0.05); color: white; }
+
+        /* Status Warna Angka */
+        .temp-high { color: #ff4757; font-weight: bold; } /* Merah kalau panas */
+        .temp-normal { color: #2ed573; } /* Hijau kalau aman */
+
+        /* Pesan kalau data kosong */
+        .empty-msg { text-align: center; padding: 50px; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>DATABASE LOGS 📂</h1>
+        <a href="/#menu" class="btn-back">⬅ KEMBALI KE MENU</a>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>WAKTU / TIMESTAMP</th>
+                    <th>SUHU (°C)</th>
+                    <th>KELEMBAPAN (%)</th>
+                    <th>SOIL MOISTURE (%)</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs %}
+                    {% for item in logs %}
+                    <tr>
+                        <td>{{ item.waktu }}</td>
+                        
+                        <td class="{{ 'temp-high' if item.suhu > 30 else 'temp-normal' }}">
+                            {{ item.suhu }}°C
+                        </td>
+                        
+                        <td>{{ item.kelembapan }}%</td>
+                        <td>{{ item.soil }}%</td>
+                        
+                        <td>
+                            {% if item.suhu > 30 %}
+                                ⚠️ PANAS
+                            {% else %}
+                                ✅ NORMAL
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-msg">Belum ada data dari Firebase, Bre...</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>

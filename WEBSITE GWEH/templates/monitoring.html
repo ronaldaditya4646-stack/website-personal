@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- STYLE SAMA KAYAK INDEX BIAR KOMPAK --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0a0a12; color: #fff; padding: 20px; min-height: 100vh; }
+        
+        /* Navbar Simpel */
+        .nav-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; border-bottom: 2px solid #7d2ae8; padding-bottom: 15px;
+        }
+        
+        /* TOMBOL KEMBALI */
+        .btn-back {
+            text-decoration: none; color: #00f2ff; border: 1px solid #00f2ff;
+            padding: 8px 20px; border-radius: 20px; transition: 0.3s; font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .btn-back:hover { background: #00f2ff; color: black; box-shadow: 0 0 15px #00f2ff; }
+
+        /* Kartu Live Data (3 Biji di Atas) */
+        .live-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 40px;
+        }
+        .live-card {
+            background: #161625; padding: 20px; border-radius: 15px;
+            border: 1px solid #333; text-align: center;
+            box-shadow: 0 0 15px rgba(125, 42, 232, 0.2);
+            transition: 0.3s;
+        }
+        .live-card:hover { transform: translateY(-5px); border-color: #00f2ff; }
+
+        .live-card h3 { color: #b3b3b3; font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; }
+        .live-value { font-size: 3rem; font-weight: bold; color: #fff; }
+        .unit { font-size: 1rem; color: #7d2ae8; margin-left: 5px; }
+
+        /* Warna Khusus Angka */
+        .c-suhu { color: #ff4757; text-shadow: 0 0 15px rgba(255, 71, 87, 0.5); }
+        .c-humid { color: #00f2ff; text-shadow: 0 0 15px rgba(0, 242, 255, 0.5); }
+        .c-soil { color: #2ed573; text-shadow: 0 0 15px rgba(46, 213, 115, 0.5); }
+
+        /* Area Grafik */
+        .chart-container {
+            background: #161625; padding: 20px; border-radius: 15px;
+            border: 1px solid #333; height: 450px; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        h2 { color: #00f2ff; margin-bottom: 20px; text-align: center; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-header">
+        <h1 style="font-size: 1.5rem; color: #7d2ae8;">MONITORING ROOM</h1>
+        
+        <a href="/#menu" class="btn-back">⬅ KEMBALI KE MENU</a>
+    </div>
+
+    <div class="live-container">
+        <div class="live-card">
+            <h3>SUHU RUANGAN</h3>
+            <div class="live-value c-suhu">{{ live.suhu }}<span class="unit">°C</span></div>
+        </div>
+        <div class="live-card">
+            <h3>KELEMBAPAN</h3>
+            <div class="live-value c-humid">{{ live.kelembapan }}<span class="unit">%</span></div>
+        </div>
+        <div class="live-card">
+            <h3>SOIL MOISTURE</h3>
+            <div class="live-value c-soil">{{ live.soil }}<span class="unit">%</span></div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2>GRAFIK 24 JAM TERAKHIR</h2>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Ambil data yang dikirim dari Python
+        const labels = {{ labels | safe }};  
+        const dataSuhu = {{ suhu | safe }};  
+        const dataLembap = {{ lembap | safe }}; 
+
+        // Konfigurasi Chart
+        new Chart(ctx, {
+            type: 'line', 
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Suhu (°C)',
+                        data: dataSuhu,
+                        borderColor: '#ff4757', 
+                        backgroundColor: 'rgba(255, 71, 87, 0.2)', 
+                        borderWidth: 3,
+                        tension: 0.4, 
+                        fill: true,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Kelembapan (%)',
+                        data: dataLembap,
+                        borderColor: '#00f2ff', 
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: 'white', font: {size: 14} } } 
+                },
+                scales: {
+                    x: { ticks: { color: '#b3b3b3' }, grid: { color: '#333' } },
+                    y: { ticks: { color: '#b3b3b3' }, grid: { color: '#333' } }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
